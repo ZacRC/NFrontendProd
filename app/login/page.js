@@ -34,17 +34,23 @@ export default function Login() {
       <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <input
           type="text"
+          id="username"
+          name="username"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="block w-full p-2 border border-gray-300 rounded"
+          autocomplete="username"
         />
         <input
           type="password"
+          id="password"
+          name="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="block w-full p-2 border border-gray-300 rounded"
+          autocomplete="current-password"
         />
         <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">
           Login
