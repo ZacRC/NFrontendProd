@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [showPopup, setShowPopup] = useState(false);
 
   const handleLogout = async () => {
-    const res = await fetch('/api/logout/', {
+    const res = await fetch('https://creatorgiveaways.world/api/logout/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export default function Dashboard() {
     const formData = new FormData();
     formData.append("video_file", videoFile);
 
-    const res = await fetch('/api/upload_video/', {
+    const res = await fetch('https://creatorgiveaways.world/api/upload_video/', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('access')}`,
