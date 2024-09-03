@@ -6,6 +6,7 @@ import {
   PlayIcon,
   MoonIcon,
   DropletIcon,
+  SettingsIcon,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -94,20 +95,31 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-blue-300 p-6 bg-gradient-to-br from-gray-900 to-black overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 animate-pulse"></div>
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxsaW5lIHgxPSIwIiB5PSIwIiB4Mj0iMCIgeTI9IjQwIiBzdHJva2U9IiMzYjgyZjYiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==')]" ></div>
-      <header className="flex justify-between items-center mb-12 relative z-10">
-        <div className="flex items-center space-x-2">
-          <MoonIcon size={24} className="text-blue-400" />
-        </div>
+    <div className="bg-gray-900 min-h-screen text-white">
+      <div className="absolute top-4 right-4 flex space-x-4">
         <button
-          className="flex items-center space-x-2 bg-blue-600/80 hover:bg-blue-700/80 text-white py-2 px-4 rounded-full transition duration-300 shadow-lg hover:shadow-blue-600/50 text-sm font-semibold backdrop-blur-sm"
-          onClick={handleLogout}
+          onClick={() => router.push('/Settings')}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
         >
-          <LogOutIcon size={18} />
-          <span>Logout</span>
+          <SettingsIcon className="mr-2" size={16} />
+          Settings
         </button>
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Logout
+        </button>
+      </div>
+
+      <header className="p-6 flex justify-between items-center">
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+          Video Transcription Dashboard
+        </h1>
+        <div className="flex space-x-4">
+          <MoonIcon size={24} className="text-blue-400" />
+          <DropletIcon size={24} className="text-blue-400" />
+        </div>
       </header>
 
       <main className="max-w-lg mx-auto relative z-10">
@@ -154,6 +166,38 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .particle {
+          position: fixed;
+          background-color: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          pointer-events: none;
+          animation: float 5s infinite, glow 1.5s infinite;
+        }
+        @keyframes float {
+          0% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+        @keyframes glow {
+          0% {
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+          }
+          50% {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+          }
+          100% {
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
