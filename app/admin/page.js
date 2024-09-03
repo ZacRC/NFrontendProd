@@ -68,13 +68,13 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       const access = localStorage.getItem('access');
       try {
-        const response = await fetch(`https://creatorgiveaways.world/api/admin/${activeTab}/delete/${id}/`, {
+        const response = await fetch(`https://creatorgiveaways.world/api/admin/${activeTab === 'user' ? 'user' : activeTab}/delete/${id}/`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${access}`,
           },
         });
-
+  
         if (response.ok) {
           fetchAdminData();
         } else {
@@ -85,15 +85,15 @@ const AdminDashboard = () => {
       }
     }
   };
-
+  
   const handleSave = async (e) => {
     e.preventDefault();
     const access = localStorage.getItem('access');
     const formData = new FormData(e.target);
     const updatedData = Object.fromEntries(formData.entries());
-
+  
     try {
-      const response = await fetch(`https://creatorgiveaways.world/api/admin/${activeTab}/update/${editItem.id}/`, {
+      const response = await fetch(`https://creatorgiveaways.world/api/admin/${activeTab === 'user' ? 'user' : activeTab}/update/${editItem.id}/`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${access}`,
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
         },
         body: JSON.stringify(updatedData),
       });
-
+  
       if (response.ok) {
         setEditItem(null);
         fetchAdminData();
