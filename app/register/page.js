@@ -16,18 +16,26 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('https://creatorgiveaways.world/api/register/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
-
-    if (res.ok) {
-      router.push('/login');
-    } else {
-      alert('Registration failed');
+    try {
+      const res = await fetch('https://creatorgiveaways.world/api/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        alert('Registration successful! Please log in.');
+        router.push('/login');
+      } else {
+        alert('Registration failed: ' + (data.error || JSON.stringify(data)));
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Registration error: ' + error.message);
     }
   };
 
