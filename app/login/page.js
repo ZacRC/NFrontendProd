@@ -24,20 +24,20 @@ export default function Login() {
         },
         body: JSON.stringify({ username, password }),
       });
-  
+
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
+        // Store the tokens in localStorage or a secure storage method
+        localStorage.setItem('accessToken', data.access);
+        localStorage.setItem('refreshToken', data.refresh);
         router.push('/dashboard');
       } else {
-        const errorData = await res.json();
-        console.error('Login failed:', errorData);
-        alert('Login failed: ' + JSON.stringify(errorData));
+        setError(data.error || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login error: ' + error.message);
+      setError('An error occurred during login');
     }
   };
 
