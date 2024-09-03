@@ -41,19 +41,19 @@ const Page = () => {
     );
   };
 
-  useEffect(() => {
-    const testAPI = async () => {
-      try {
-        const response = await fetch('https://creatorgiveaways.world/api/test/');
-        const data = await response.json();
-        setApiResponse(JSON.stringify(data, null, 2));
-      } catch (error) {
-        setApiResponse('Error: ' + error.message);
-      }
-    };
+  const handleTestAPI = async () => {
+    try {
+      const response = await fetch('https://creatorgiveaways.world/api/test/');
+      const data = await response.json();
+      setApiResponse(JSON.stringify(data, null, 2));
+    } catch (error) {
+      setApiResponse('Error: ' + error.message);
+    }
+  };
 
-    testAPI();
-  }, []); // Empty dependency array ensures this effect runs only once on component mount
+  useEffect(() => {
+    handleTestAPI();
+  }, []);
 
   return (
     <div className="bg-[#1c1c1e] min-h-screen text-white relative overflow-hidden">
