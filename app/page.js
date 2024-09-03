@@ -31,6 +31,25 @@ const Page = () => {
     { id: 4, text: "Removr Illustrations", completed: true },
     { id: 5, text: "Bento Cards v. 4", completed: false },
   ]);
+  const [apiResponse, setApiResponse] = useState(null);
+
+  const handleCheckboxChange = (id) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const handleTestAPI = async () => {
+    try {
+      const response = await fetch('https://creatorgiveaways.world/api/test/');
+      const data = await response.json();
+      setApiResponse(JSON.stringify(data, null, 2));
+    } catch (error) {
+      setApiResponse('Error: ' + error.message);
+    }
+  };
 
   useEffect(() => {
     const createParticle = () => {
@@ -49,14 +68,6 @@ const Page = () => {
     const particleInterval = setInterval(createParticle, 200);
     return () => clearInterval(particleInterval);
   }, []);
-
-  const handleCheckboxChange = (id) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
 
   return (
     <div className="bg-[#1c1c1e] min-h-screen text-white relative overflow-hidden">
@@ -93,6 +104,23 @@ const Page = () => {
         <p className="text-center text-gray-500 text-sm mb-12">
           v1.0.1 - macOS 12+
         </p>
+
+        <div className="flex justify-center mb-8">
+          <button
+            onClick={handleTestAPI}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Test API
+          </button>
+        </div>
+
+        {apiResponse && (
+          <div className="max-w-lg mx-auto bg-[#2c2c2e] p-4 rounded-lg mb-8">
+            <pre className="text-sm text-gray-300 overflow-x-auto">
+              {apiResponse}
+            </pre>
+          </div>
+        )}
 
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1c1c1e] pointer-events-none"></div>
