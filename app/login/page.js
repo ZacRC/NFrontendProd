@@ -9,22 +9,28 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('https://creatorgiveaways.world/api/login/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      // Store tokens in localStorage or cookies
-      localStorage.setItem('access', data.access);
-      localStorage.setItem('refresh', data.refresh);
-      router.push('/dashboard');
-    } else {
-      alert('Login failed');
+    try {
+      const res = await fetch('https://creatorgiveaways.world/api/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+        router.push('/dashboard');
+      } else {
+        const errorData = await res.json();
+        console.error('Login failed:', errorData);
+        alert('Login failed: ' + JSON.stringify(errorData));
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login error: ' + error.message);
     }
   };
 
