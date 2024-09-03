@@ -41,33 +41,19 @@ const Page = () => {
     );
   };
 
-  const handleTestAPI = async () => {
-    try {
-      const response = await fetch('https://creatorgiveaways.world/api/test/');
-      const data = await response.json();
-      setApiResponse(JSON.stringify(data, null, 2));
-    } catch (error) {
-      setApiResponse('Error: ' + error.message);
-    }
-  };
-
   useEffect(() => {
-    const createParticle = () => {
-      const particle = document.createElement("div");
-      particle.className = "particle";
-      particle.style.left = `${Math.random() * 100}vw`;
-      particle.style.top = `${Math.random() * 100}vh`;
-      particle.style.opacity = Math.random();
-      particle.style.width = `${Math.random() * 2 + 1}px`;
-      particle.style.height = `${Math.random() * 2 + 1}px`;
-      document.body.appendChild(particle);
-      setTimeout(() => {
-        particle.remove();
-      }, 5000);
+    const testAPI = async () => {
+      try {
+        const response = await fetch('https://creatorgiveaways.world/api/test/');
+        const data = await response.json();
+        setApiResponse(JSON.stringify(data, null, 2));
+      } catch (error) {
+        setApiResponse('Error: ' + error.message);
+      }
     };
-    const particleInterval = setInterval(createParticle, 200);
-    return () => clearInterval(particleInterval);
-  }, []);
+
+    testAPI();
+  }, []); // Empty dependency array ensures this effect runs only once on component mount
 
   return (
     <div className="bg-[#1c1c1e] min-h-screen text-white relative overflow-hidden">
