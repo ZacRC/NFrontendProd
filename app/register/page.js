@@ -82,6 +82,7 @@ export default function Register() {
           onChange={handleChange}
           className="block w-full p-2 mb-4 border border-gray-300 rounded"
           required
+          autocomplete="new-password"
         />
         <input
           type="password"
@@ -91,6 +92,7 @@ export default function Register() {
           onChange={handleChange}
           className="block w-full p-2 mb-4 border border-gray-300 rounded"
           required
+          autocomplete="new-password"
         />
         <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
           Register
