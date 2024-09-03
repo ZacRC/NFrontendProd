@@ -13,6 +13,10 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -23,6 +27,7 @@ const AdminDashboard = () => {
 
   const [userActivity, setUserActivity] = useState([]);
   const [analytics, setAnalytics] = useState(null);
+  const [pageVisits, setPageVisits] = useState([]);
 
   useEffect(() => {
     fetchAdminData();
@@ -47,6 +52,7 @@ const AdminDashboard = () => {
         setData(fetchedData);
         setUserActivity(fetchedData.user_activity || []);
         setAnalytics(fetchedData.analytics || null);
+        setPageVisits(fetchedData.analytics?.page_visits || []);
         const newTabs = Object.keys(fetchedData).map(key => ({
           id: key,
           label: key.charAt(0).toUpperCase() + key.slice(1),
@@ -118,6 +124,32 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error updating item:', error);
     }
+  };
+
+  const pageVisitsData = {
+    labels: pageVisits.map(item => item.page),
+    datasets: [
+      {
+        label: 'Page Visits',
+        data: pageVisits.map(item => item.visits),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pageVisitsOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Page Visits (Last 7 Days)',
+      },
+    },
   };
 
   return (
@@ -240,7 +272,7 @@ const AdminDashboard = () => {
         {activeTab === "analytics" && analytics && (
           <div>
             <h2 className="text-2xl font-semibold mb-4">Analytics</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="bg-white p-4 rounded shadow">
                 <h3 className="text-lg font-semibold">Total Users</h3>
                 <p className="text-3xl font-bold">{analytics.total_users}</p>
@@ -257,6 +289,9 @@ const AdminDashboard = () => {
                 <h3 className="text-lg font-semibold">Videos Uploaded (Last 7 Days)</h3>
                 <p className="text-3xl font-bold">{analytics.videos_uploaded_last_7_days}</p>
               </div>
+            </div>
+            <div className="bg-white p-4 rounded shadow">
+              <Bar data={pageVisitsData} options={pageVisitsOptions} />
             </div>
           </div>
         )}
