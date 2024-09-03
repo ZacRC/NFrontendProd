@@ -11,11 +11,11 @@ export default function Login() {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [resetEmail, setResetEmail] = useState('');
-  const [showResetForm, setShowResetForm] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       const res = await fetch('https://creatorgiveaways.world/api/login/', {
         method: 'POST',
@@ -28,9 +28,9 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        // Store the tokens in localStorage or a secure storage method
         localStorage.setItem('accessToken', data.access);
         localStorage.setItem('refreshToken', data.refresh);
+        localStorage.setItem('user', JSON.stringify(data.user));
         router.push('/dashboard');
       } else {
         setError(data.error || 'Login failed');
