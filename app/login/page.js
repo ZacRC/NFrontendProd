@@ -4,14 +4,18 @@ import { useRouter } from 'next/navigation';
 import { trackPageVisit } from '../../utils/trackPageVisit';
 
 export default function Login() {
-  useEffect(() => {
-    trackPageVisit('login');
-  }, []);
-
-  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
+  const [showResetForm, setShowResetForm] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      trackPageVisit('login');
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,9 +32,11 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem('accessToken', data.access);
-        localStorage.setItem('refreshToken', data.refresh);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', data.access);
+          localStorage.setItem('refreshToken', data.refresh);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
         router.push('/dashboard');
       } else {
         setError(data.error || 'Login failed');

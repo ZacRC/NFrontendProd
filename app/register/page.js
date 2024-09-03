@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackPageVisit } from '../../utils/trackPageVisit';
 
@@ -13,8 +13,10 @@ export default function Register() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useState(() => {
-    trackPageVisit('register');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      trackPageVisit('register');
+    }
   }, []);
 
   const handleChange = (e) => {
