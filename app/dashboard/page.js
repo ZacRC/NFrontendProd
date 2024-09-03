@@ -76,24 +76,6 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    const createParticle = () => {
-      const particle = document.createElement("div");
-      particle.className = "particle";
-      particle.style.left = `${Math.random() * 100}vw`;
-      particle.style.top = `${Math.random() * 100}vh`;
-      particle.style.opacity = Math.random();
-      particle.style.width = `${Math.random() * 2 + 1}px`;
-      particle.style.height = `${Math.random() * 2 + 1}px`;
-      document.body.appendChild(particle);
-      setTimeout(() => {
-        particle.remove();
-      }, 5000);
-    };
-    const particleInterval = setInterval(createParticle, 200);
-    return () => clearInterval(particleInterval);
-  }, []);
-
   return (
     <div className="bg-gray-900 min-h-screen text-white">
       <div className="absolute top-4 right-4 flex space-x-4">
@@ -166,38 +148,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .particle {
-          position: fixed;
-          background-color: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          pointer-events: none;
-          animation: float 5s infinite, glow 1.5s infinite;
-        }
-        @keyframes float {
-          0% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-          100% {
-            transform: translateY(0);
-          }
-        }
-        @keyframes glow {
-          0% {
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-          }
-          50% {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-          }
-          100% {
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-          }
-        }
-      `}</style>
     </div>
   );
 }
