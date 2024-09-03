@@ -16,15 +16,29 @@ export default function Dashboard() {
   const [transcription, setTranscription] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
+  useEffect(() => {
+    const access = localStorage.getItem('access');
+    if (!access) {
+      router.push('/login');
+    }
+  }, []);
+
   const handleLogout = async () => {
+    const access = localStorage.getItem('access');
+    const refresh = localStorage.getItem('refresh');
+    
     const res = await fetch('https://creatorgiveaways.world/api/logout/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${access}`,
       },
+      body: JSON.stringify({ refresh }),
     });
 
     if (res.ok) {
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
       router.push('/login');
     } else {
       alert('Logout failed');
