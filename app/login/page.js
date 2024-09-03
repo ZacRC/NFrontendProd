@@ -1,8 +1,14 @@
 'use client';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { trackPageVisit } from '../../utils/trackPageVisit';
 
 export default function Login() {
+  useEffect(() => {
+    trackPageVisit('login');
+  }, []);
+
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

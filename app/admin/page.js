@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import { trackPageVisit } from '../../utils/trackPageVisit';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -25,6 +30,7 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
+    trackPageVisit('admin');
     fetchAdminData();
   }, []);
 
@@ -118,6 +124,32 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error updating item:', error);
     }
+  };
+
+  const pageVisitsData = {
+    labels: analytics?.page_visits?.map(item => item.page) || [],
+    datasets: [
+      {
+        label: 'Page Visits',
+        data: analytics?.page_visits?.map(item => item.visits) || [],
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pageVisitsOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Page Visits (Last 7 Days)',
+      },
+    },
   };
 
   return (
@@ -257,6 +289,9 @@ const AdminDashboard = () => {
                 <h3 className="text-lg font-semibold">Videos Uploaded (Last 7 Days)</h3>
                 <p className="text-3xl font-bold">{analytics.videos_uploaded_last_7_days}</p>
               </div>
+            </div>
+            <div className="bg-white p-4 rounded shadow mt-4">
+              <Bar data={pageVisitsData} options={pageVisitsOptions} />
             </div>
           </div>
         )}

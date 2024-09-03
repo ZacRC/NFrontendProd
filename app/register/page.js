@@ -1,8 +1,14 @@
 'use client';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { trackPageVisit } from '../../utils/trackPageVisit';
 
 export default function Register() {
+  useEffect(() => {
+    trackPageVisit('register');
+  }, []);
+
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');

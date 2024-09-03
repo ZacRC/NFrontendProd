@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trackPageVisit } from '../../utils/trackPageVisit';
 import {
   ArrowLeftIcon,
   UserIcon,
@@ -16,6 +17,7 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
+    trackPageVisit('settings');
     const fetchUserInfo = async () => {
       const access = localStorage.getItem('access');
       if (!access) {

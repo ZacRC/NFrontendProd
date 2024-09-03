@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackPageVisit } from '../../utils/trackPageVisit';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function Dashboard() {
     if (!access) {
       router.push('/login');
     } else {
-      trackUserActivity('page_visit', { page: 'dashboard' });
+      trackPageVisit('dashboard');
     }
   }, []);
 

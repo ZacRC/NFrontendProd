@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackPageVisit } from '../utils/trackPageVisit';
 
 const Page = () => {
   const router = useRouter();
@@ -52,6 +53,7 @@ const Page = () => {
   };
 
   useEffect(() => {
+    trackPageVisit('home');
     handleTestAPI();
   }, []);
 
