@@ -21,8 +21,26 @@ export default function Dashboard() {
     const access = localStorage.getItem('access');
     if (!access) {
       router.push('/login');
+    } else {
+      trackUserActivity('page_visit', { page: 'dashboard' });
     }
   }, []);
+
+  const trackUserActivity = async (activityType, details = {}) => {
+    const access = localStorage.getItem('access');
+    try {
+      await fetch('https://creatorgiveaways.world/api/track_activity/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${access}`,
+        },
+        body: JSON.stringify({ activity_type: activityType, details }),
+      });
+    } catch (error) {
+      console.error('Error tracking user activity:', error);
+    }
+  };
 
   const handleLogout = async () => {
     const access = localStorage.getItem('access');
@@ -71,6 +89,7 @@ export default function Dashboard() {
       const data = await res.json();
       setTranscription(data.transcription);
       setShowPopup(true);
+      trackUserActivity('video_upload', { video_id: data.id });
     } else {
       alert('Video upload failed');
     }

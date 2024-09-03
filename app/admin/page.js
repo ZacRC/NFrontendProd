@@ -8,6 +8,8 @@ import {
   EditIcon,
   TrashIcon,
   XIcon,
+  BarChart2Icon,
+  ActivityIcon,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
@@ -18,6 +20,9 @@ const AdminDashboard = () => {
   const [tabs, setTabs] = useState([]);
   const [editItem, setEditItem] = useState(null);
   const router = useRouter();
+
+  const [userActivity, setUserActivity] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
 
   useEffect(() => {
     fetchAdminData();
@@ -40,6 +45,8 @@ const AdminDashboard = () => {
       if (response.ok) {
         const fetchedData = await response.json();
         setData(fetchedData);
+        setUserActivity(fetchedData.user_activity || []);
+        setAnalytics(fetchedData.analytics || null);
         const newTabs = Object.keys(fetchedData).map(key => ({
           id: key,
           label: key.charAt(0).toUpperCase() + key.slice(1),
@@ -139,10 +146,24 @@ const AdminDashboard = () => {
             <InfoIcon className="w-5 h-5 mr-2" />
             More Information
           </button>
+          <button
+            className="flex items-center px-4 py-2 mt-2 text-gray-600 w-full hover:bg-gray-100"
+            onClick={() => setActiveTab("analytics")}
+          >
+            <BarChart2Icon className="w-5 h-5 mr-2" />
+            Analytics
+          </button>
+          <button
+            className="flex items-center px-4 py-2 mt-2 text-gray-600 w-full hover:bg-gray-100"
+            onClick={() => setActiveTab("user_activity")}
+          >
+            <ActivityIcon className="w-5 h-5 mr-2" />
+            User Activity
+          </button>
         </nav>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
-        {activeTab !== "more" && data[activeTab] && (
+        {activeTab !== "more" && activeTab !== "analytics" && activeTab !== "user_activity" && data[activeTab] && (
           <div>
             <h2 className="text-2xl font-semibold mb-4">
               {tabs.find(tab => tab.id === activeTab)?.label}
@@ -214,6 +235,54 @@ const AdminDashboard = () => {
                 </a>
               </div>
             </div>
+          </div>
+        )}
+        {activeTab === "analytics" && analytics && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Analytics</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-4 rounded shadow">
+                <h3 className="text-lg font-semibold">Total Users</h3>
+                <p className="text-3xl font-bold">{analytics.total_users}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow">
+                <h3 className="text-lg font-semibold">Active Users (Last 7 Days)</h3>
+                <p className="text-3xl font-bold">{analytics.active_users_last_7_days}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow">
+                <h3 className="text-lg font-semibold">Total Videos</h3>
+                <p className="text-3xl font-bold">{analytics.total_videos}</p>
+              </div>
+              <div className="bg-white p-4 rounded shadow">
+                <h3 className="text-lg font-semibold">Videos Uploaded (Last 7 Days)</h3>
+                <p className="text-3xl font-bold">{analytics.videos_uploaded_last_7_days}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === "user_activity" && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">User Activity</h2>
+            <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+              <thead className="bg-gray-200 text-gray-700">
+                <tr>
+                  <th className="py-3 px-4 text-left">Username</th>
+                  <th className="py-3 px-4 text-left">Activity Type</th>
+                  <th className="py-3 px-4 text-left">Timestamp</th>
+                  <th className="py-3 px-4 text-left">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {userActivity.map((activity) => (
+                  <tr key={activity.id} className="border-b border-gray-200">
+                    <td className="py-3 px-4">{activity.username}</td>
+                    <td className="py-3 px-4">{activity.activity_type}</td>
+                    <td className="py-3 px-4">{new Date(activity.timestamp).toLocaleString()}</td>
+                    <td className="py-3 px-4">{JSON.stringify(activity.details)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </main>
