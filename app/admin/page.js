@@ -7,73 +7,111 @@ import {
   GithubIcon,
   EditIcon,
   TrashIcon,
+  XIcon,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
-  const [users, setUsers] = useState([]);
-  const [videos, setVideos] = useState([]);
+  const [data, setData] = useState({});
+  const [tabs, setTabs] = useState([]);
+  const [editItem, setEditItem] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchAdminData = async () => {
-      const access = localStorage.getItem('access');
-      if (!access) {
-        router.push('/login');
-        return;
-      }
+    fetchAdminData();
+  }, []);
 
+  const fetchAdminData = async () => {
+    const access = localStorage.getItem('access');
+    if (!access) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://creatorgiveaways.world/api/admin/dashboard/', {
+        headers: {
+          'Authorization': `Bearer ${access}`,
+        },
+      });
+
+      if (response.ok) {
+        const fetchedData = await response.json();
+        setData(fetchedData);
+        const newTabs = Object.keys(fetchedData).map(key => ({
+          id: key,
+          label: key.charAt(0).toUpperCase() + key.slice(1),
+          icon: key === 'users' ? UserIcon : VideoIcon,
+        }));
+        setTabs(newTabs);
+        if (newTabs.length > 0 && !newTabs.some(tab => tab.id === activeTab)) {
+          setActiveTab(newTabs[0].id);
+        }
+      } else if (response.status === 403) {
+        alert('You do not have permission to access this page');
+        router.push('/dashboard');
+      } else {
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditItem(item);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      const access = localStorage.getItem('access');
       try {
-        const response = await fetch('https://creatorgiveaways.world/api/admin/dashboard/', {
+        const response = await fetch(`https://creatorgiveaways.world/api/admin/${activeTab}/delete/${id}/`, {
+          method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${access}`,
           },
         });
 
         if (response.ok) {
-          const data = await response.json();
-          setUsers(data.users);
-          setVideos(data.videos);
-        } else if (response.status === 403) {
-          alert('You do not have permission to access this page');
-          router.push('/dashboard');
+          fetchAdminData();
         } else {
-          router.push('/login');
+          alert('Failed to delete item');
         }
       } catch (error) {
-        console.error('Error fetching admin data:', error);
+        console.error('Error deleting item:', error);
       }
-    };
-
-    fetchAdminData();
-  }, []);
-
-  const handleCreateUser = async (userData) => {
-    // Implement user creation logic
+    }
   };
 
-  const handleUpdateUser = async (userId, userData) => {
-    // Implement user update logic
-  };
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const access = localStorage.getItem('access');
+    const formData = new FormData(e.target);
+    const updatedData = Object.fromEntries(formData.entries());
 
-  const handleDeleteUser = async (userId) => {
-    // Implement user deletion logic
-  };
+    try {
+      const response = await fetch(`https://creatorgiveaways.world/api/admin/${activeTab}/update/${editItem.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${access}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
 
-  const tabs = [
-    {
-      id: "users",
-      label: "User Information",
-      icon: UserIcon,
-    },
-    {
-      id: "videos",
-      label: "Video",
-      icon: VideoIcon,
-    },
-  ];
+      if (response.ok) {
+        setEditItem(null);
+        fetchAdminData();
+      } else {
+        alert('Failed to update item');
+      }
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -104,73 +142,39 @@ const AdminDashboard = () => {
         </nav>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
-        {activeTab === "users" && (
+        {activeTab !== "more" && data[activeTab] && (
           <div>
             <h2 className="text-2xl font-semibold mb-4">
-              User Information
+              {tabs.find(tab => tab.id === activeTab)?.label}
             </h2>
             <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
               <thead className="bg-gray-200 text-gray-700">
                 <tr>
-                  <th className="py-3 px-4 text-left">Username</th>
-                  <th className="py-3 px-4 text-left">Email</th>
-                  <th className="py-3 px-4 text-left">Is Staff</th>
-                  <th className="py-3 px-4 text-left">Date Joined</th>
+                  {Object.keys(data[activeTab][0]).map(key => (
+                    <th key={key} className="py-3 px-4 text-left">{key}</th>
+                  ))}
                   <th className="py-3 px-4 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-b border-gray-200">
-                    <td className="py-3 px-4">{user.username}</td>
-                    <td className="py-3 px-4">{user.email}</td>
-                    <td className="py-3 px-4">{user.is_staff ? 'Yes' : 'No'}</td>
-                    <td className="py-3 px-4">{new Date(user.date_joined).toLocaleDateString()}</td>
+                {data[activeTab].map((item) => (
+                  <tr key={item.id} className="border-b border-gray-200">
+                    {Object.entries(item).map(([key, value]) => (
+                      <td key={key} className="py-3 px-4">
+                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}
+                      </td>
+                    ))}
                     <td className="py-3 px-4">
                       <button
                         className="text-blue-500 hover:text-blue-700 mr-2"
-                        onClick={() => handleUpdateUser(user.id)}
+                        onClick={() => handleEdit(item)}
                       >
                         <EditIcon className="w-5 h-5" />
                       </button>
                       <button
                         className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDelete(item.id)}
                       >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {activeTab === "videos" && (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">
-              Video Management
-            </h2>
-            <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-              <thead className="bg-gray-200 text-gray-700">
-                <tr>
-                  <th className="py-3 px-4 text-left">User</th>
-                  <th className="py-3 px-4 text-left">Video File</th>
-                  <th className="py-3 px-4 text-left">Uploaded At</th>
-                  <th className="py-3 px-4 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {videos.map((video) => (
-                  <tr key={video.id} className="border-b border-gray-200">
-                    <td className="py-3 px-4">{video.user}</td>
-                    <td className="py-3 px-4">{video.video_file}</td>
-                    <td className="py-3 px-4">{new Date(video.uploaded_at).toLocaleString()}</td>
-                    <td className="py-3 px-4">
-                      <button className="text-blue-500 hover:text-blue-700 mr-2">
-                        <EditIcon className="w-5 h-5" />
-                      </button>
-                      <button className="text-red-500 hover:text-red-700">
                         <TrashIcon className="w-5 h-5" />
                       </button>
                     </td>
@@ -213,6 +217,40 @@ const AdminDashboard = () => {
           </div>
         )}
       </main>
+      {editItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Edit Item</h3>
+              <button onClick={() => setEditItem(null)} className="text-gray-500 hover:text-gray-700">
+                <XIcon className="w-6 h-6" />
+              </button>
+            </div>
+            <form onSubmit={handleSave}>
+              {Object.entries(editItem).map(([key, value]) => (
+                key !== 'id' && (
+                  <div key={key} className="mb-4">
+                    <label htmlFor={key} className="block text-sm font-medium text-gray-700 mb-1">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </label>
+                    <input
+                      type={typeof value === 'boolean' ? 'checkbox' : 'text'}
+                      id={key}
+                      name={key}
+                      defaultValue={value}
+                      defaultChecked={typeof value === 'boolean' ? value : undefined}
+                      className="w-full p-2 border border-gray-300 rounded"
+                    />
+                  </div>
+                )
+              ))}
+              <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
