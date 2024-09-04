@@ -32,11 +32,10 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('accessToken', data.access);
-          localStorage.setItem('refreshToken', data.refresh);
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
+        localStorage.setItem('accessToken', data.access);
+        localStorage.setItem('refreshToken', data.refresh);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('Login successful, tokens stored');
         router.push('/dashboard');
       } else {
         setError(data.error || 'Login failed');
