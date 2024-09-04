@@ -60,11 +60,13 @@ const Dashboard = () => {
 
     const handleLogout = async () => {
         try {
+            const accessToken = localStorage.getItem('accessToken');
             const refreshToken = localStorage.getItem('refreshToken');
             const response = await fetch('https://creatorgiveaways.world/api/logout/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({ refresh: refreshToken }),
             });
@@ -76,9 +78,19 @@ const Dashboard = () => {
                 router.push('/login');
             } else {
                 console.error('Logout failed');
+                // If the token is invalid, we should still clear local storage and redirect
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                router.push('/login');
             }
         } catch (error) {
             console.error('Logout error:', error);
+            // Even if there's an error, clear local storage and redirect
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+            router.push('/login');
         }
     };
 
