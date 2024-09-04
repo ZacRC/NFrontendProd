@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackPageVisit } from '../../utils/trackPageVisit';
+import { checkAndRefreshToken } from '../../utils/auth';
 import {
   ArrowLeftIcon,
   UserIcon,
@@ -15,43 +16,56 @@ const Settings = () => {
   const [newEmail, setNewEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    trackPageVisit('settings');
-    const fetchUserInfo = async () => {
-      const access = localStorage.getItem('access');
-      if (!access) {
+    const checkAuth = async () => {
+      const isAuthenticated = await checkAndRefreshToken();
+      if (!isAuthenticated) {
+        console.log('Authentication failed, redirecting to login');
         router.push('/login');
-        return;
-      }
-      try {
-        const response = await fetch('https://creatorgiveaways.world/api/user_info/', {
-          headers: {
-            'Authorization': `Bearer ${access}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUserInfo(data);
-        } else {
-          router.push('/login');
+      } else {
+        fetchUserInfo();
+        if (typeof window !== 'undefined') {
+          trackPageVisit('settings');
         }
-      } catch (error) {
-        console.error('Error fetching user info:', error);
       }
     };
-    fetchUserInfo();
-  }, []);
+
+    checkAuth();
+  }, [router]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await fetch('https://creatorgiveaways.world/api/user_info/', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserInfo(data);
+      } else {
+        throw new Error('Failed to fetch user info');
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      router.push('/login');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleChangeEmail = async (e) => {
     e.preventDefault();
-    const access = localStorage.getItem('access');
     try {
+      const accessToken = localStorage.getItem('accessToken');
       const response = await fetch('https://creatorgiveaways.world/api/change_email/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${access}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ new_email: newEmail }),
       });
@@ -69,13 +83,13 @@ const Settings = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    const access = localStorage.getItem('access');
     try {
+      const accessToken = localStorage.getItem('accessToken');
       const response = await fetch('https://creatorgiveaways.world/api/change_password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${access}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
       });
@@ -91,7 +105,13 @@ const Settings = () => {
     }
   };
 
-  if (!userInfo) return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!userInfo) {
+    return <div>Error loading user information</div>;
+  }
 
   return (
     <div className="bg-gray-900 text-gray-100 min-h-screen w-full max-w-full p-6">
